@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::path::Path;
 
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, NaiveDate, TimeZone, Utc};
 use ndarray::{Array1, Array2};
 use num_traits::Float;
 use polars::prelude::*;

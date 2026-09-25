@@ -94,7 +94,7 @@ dashmap = "5.5"
 once_cell = "1.19"
 sysinfo = "0.30"
 bincode = "1.3"
-jemalloc-ctl = "0.5"
+# jemalloc-ctl removed: unused dead dev-dep; jemalloc-sys fails to build on Windows (no C toolchain)
 
 [features]
 default = ["std", "models", "registry"]

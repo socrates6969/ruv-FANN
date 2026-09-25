@@ -42,7 +42,7 @@ pub struct NetworkAdapter<T: Float + Send + Sync + 'static> {
 }
 
 /// Configuration for NetworkAdapter
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkAdapterConfig<T: Float + Send + Sync + 'static> {
     /// Input dimension
     pub input_size: usize,
@@ -722,12 +722,11 @@ mod tests {
 
     #[test]
     fn test_network_adapter_creation() {
-        let network = NetworkBuilder::new()
+        let network = NetworkBuilder::<f64>::new()
             .input_layer(3)
             .hidden_layer(5)
             .output_layer(1)
-            .build::<f64>()
-            .unwrap();
+            .build();
 
         let adapter = NetworkAdapter::from_network(network);
         assert_eq!(adapter.config.input_size, 3);
@@ -736,7 +735,7 @@ mod tests {
 
     #[test]
     fn test_training_bridge_creation() {
-        let algorithm = Box::new(ruv_fann::training::BackpropagationAlgorithm::new());
+        let algorithm = Box::new(ruv_fann::training::IncrementalBackprop::<f64>::new(0.01));
         let bridge = TrainingBridge::<f64>::new(algorithm);
         
         assert_eq!(bridge.config.max_epochs, 1000);

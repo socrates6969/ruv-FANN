@@ -19,7 +19,7 @@ use crate::{
 };
 
 /// Generic model configuration implementation
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GenericModelConfig<T: Float + Send + Sync + 'static> {
     /// Model type identifier
     pub model_type: String,
@@ -1033,9 +1033,9 @@ mod tests {
 
     #[test]
     fn test_config_validation() {
-        let valid_config = GenericModelConfig::<f64>::new("test")
+        let mut valid_config = GenericModelConfig::<f64>::new("test")
             .with_parameter("horizon".to_string(), ConfigParameter::Integer(12));
-        
+
         valid_config.horizon = 12;
         assert!(valid_config.validate().is_ok());
 
