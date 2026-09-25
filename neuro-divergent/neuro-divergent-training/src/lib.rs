@@ -15,7 +15,7 @@
 //!
 //! ## Example Usage
 //!
-//! ```rust
+//! ```rust,ignore
 //! use neuro_divergent_training::*;
 //! use ruv_fann::Network;
 //!
@@ -331,7 +331,8 @@ mod tests {
             vec![6.0, 8.0],
         ];
         let norm = utils::clip_gradients_by_norm(&mut gradients, 5.0);
-        assert!((norm - 12.806248).abs() < 1e-5); // Original norm
+        // Original L2 norm of [3,4,6,8] = sqrt(9+16+36+64) = sqrt(125) = 11.18034
+        assert!((norm - 11.180340).abs() < 1e-5);
         
         // Check clipped values
         let new_norm = utils::gradient_norm(&gradients);

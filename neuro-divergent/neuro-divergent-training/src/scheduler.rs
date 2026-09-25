@@ -425,6 +425,7 @@ pub struct CosineScheduler<T: Float + Send + Sync> {
     restart_factor: T,
     restart_count: usize,
     current_t_max: usize,
+    enable_restarts: bool,
 }
 
 impl<T: Float + Send + Sync> CosineScheduler<T> {
@@ -438,6 +439,7 @@ impl<T: Float + Send + Sync> CosineScheduler<T> {
             restart_factor: T::one(),
             restart_count: 0,
             current_t_max: t_max,
+            enable_restarts: false,
         }
     }
     
@@ -448,6 +450,7 @@ impl<T: Float + Send + Sync> CosineScheduler<T> {
     
     pub fn with_restarts(mut self, restart_factor: T) -> Self {
         self.restart_factor = restart_factor;
+        self.enable_restarts = true;
         self
     }
 }
@@ -458,14 +461,19 @@ impl<T: Float + Send + Sync> LearningRateScheduler<T> for CosineScheduler<T> {
         
         let mut t_cur = step;
         let mut t_max = self.current_t_max;
-        
-        // Handle restarts
-        while t_cur >= t_max {
-            t_cur -= t_max;
-            self.restart_count += 1;
-            t_max = (T::from(self.t_max).unwrap() * self.restart_factor.powi(self.restart_count as i32))
-                .to_usize().unwrap_or(self.t_max);
-            self.current_t_max = t_max;
+
+        if self.enable_restarts {
+            // SGDR warm restarts (opt-in): wrap t_cur each cycle and grow t_max.
+            while t_cur >= t_max {
+                t_cur -= t_max;
+                self.restart_count += 1;
+                t_max = (T::from(self.t_max).unwrap() * self.restart_factor.powi(self.restart_count as i32))
+                    .to_usize().unwrap_or(self.t_max);
+                self.current_t_max = t_max;
+            }
+        } else {
+            // Plain cosine annealing: hold at the minimum once past t_max.
+            t_cur = t_cur.min(t_max);
         }
         
         // Cosine annealing formula

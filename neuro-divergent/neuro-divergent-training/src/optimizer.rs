@@ -1067,8 +1067,9 @@ mod tests {
         let mut test_params = parameters.clone();
         optimizer.step(&mut test_params, &gradients).unwrap();
         
-        // This tests that restoration worked correctly
-        assert_eq!(optimizer.step_count, 2);
+        // restore_state reset step_count to 2; the step above then makes it 3.
+        // (Without a correct restore it would be 4 + 1 = 5, so 3 proves it worked.)
+        assert_eq!(optimizer.step_count, 3);
     }
     
     #[test]
