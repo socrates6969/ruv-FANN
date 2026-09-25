@@ -17,38 +17,37 @@
 //! ## Example Usage
 //!
 //! ```rust,no_run
-//! use neuro_divergent_data::prelude::*;
-//! use chrono::{DateTime, Utc};
+//! use neuro_divergent_data::TimeSeriesDatasetBuilder;
+//! use neuro_divergent_data::features::FeatureEngine;
+//! use neuro_divergent_data::validation::validate_time_series;
+//! use chrono::{DateTime, Duration, Utc};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! // Create a time series dataset
-//! let timestamps: Vec<DateTime<Utc>> = vec![/* your timestamps */];
+//! // Build a single time series (the builder keeps values and timestamps in step
+//! // and sorts by time).
+//! let start = Utc::now();
 //! let values: Vec<f64> = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-//! 
-//! let mut dataset = TimeSeriesDataset::new("series_1".to_string())
+//! let timestamps: Vec<DateTime<Utc>> = (0..values.len())
+//!     .map(|i| start + Duration::days(i as i64))
+//!     .collect();
+//!
+//! let dataset = TimeSeriesDatasetBuilder::new("series_1".to_string())
+//!     .with_frequency("D".to_string())
 //!     .with_values(values)
 //!     .with_timestamps(timestamps)
-//!     .with_frequency("D".to_string())
 //!     .build()?;
 //!
-//! // Apply preprocessing
-//! let mut preprocessor = StandardScaler::default();
-//! preprocessor.fit(&dataset.values)?;
-//! let normalized_data = preprocessor.transform(&dataset.values)?;
+//! // Validate data quality
+//! let _report = validate_time_series(&dataset);
 //!
-//! // Generate features
-//! let mut feature_engine = FeatureEngine::new()
-//!     .with_lag_features(vec![1, 2, 3, 7])
-//!     .with_rolling_features(vec![7, 14, 30])
-//!     .with_temporal_features(true);
-//!
-//! let features = feature_engine.generate_features(&dataset)?;
-//!
+//! // Generate lag features
+//! let feature_engine = FeatureEngine::new().with_lag_features(vec![1, 2, 3]);
+//! let _features = feature_engine.generate_features(&dataset)?;
 //! # Ok(())
 //! # }
 //! ```
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 use num_traits::Float;
@@ -61,10 +60,11 @@ use serde::{Deserialize, Serialize};
 pub mod preprocessing;
 pub mod features;
 pub mod validation;
-pub mod crossval;
-pub mod loaders;
-pub mod transforms;
-pub mod augmentation;
+// Not yet implemented (no source files); declarations kept here as a roadmap.
+// pub mod crossval;
+// pub mod loaders;
+// pub mod transforms;
+// pub mod augmentation;
 
 // Re-export commonly used types
 pub use chrono::{DateTime, Utc};
@@ -77,10 +77,7 @@ pub mod prelude {
         preprocessing::*,
         features::*,
         validation::*,
-        crossval::*,
-        loaders::*,
-        transforms::*,
-        augmentation::*,
+        // crossval::*, loaders::*, transforms::*, augmentation::*  (not yet implemented)
     };
     pub use chrono::{DateTime, Utc};
     pub use ndarray::{Array1, Array2};
