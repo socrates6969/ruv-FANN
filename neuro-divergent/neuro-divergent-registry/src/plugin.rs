@@ -15,6 +15,8 @@ use sha2::{Sha256, Digest};
 
 #[cfg(feature = "plugin-system")]
 use libloading::{Library, Symbol};
+#[cfg(feature = "plugin-system")]
+use std::sync::Arc;
 
 /// Plugin descriptor containing metadata and model information
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
